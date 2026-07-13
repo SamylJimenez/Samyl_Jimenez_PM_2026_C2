@@ -1,0 +1,62 @@
+[
+  {
+    "Nombre": "Juan",
+    "Apellido": "Perez",
+    "Promedio": 8.50,
+    "Materia": "Matematica"
+  },
+  {
+    "Nombre": "Maria",
+    "Apellido": "Gomez",
+    "Promedio": 9.20,
+    "Materia": "Historia"
+  },
+  {
+    "Nombre": "Carlos",
+    "Apellido": "Lopez",
+    "Promedio": 6.75,
+    "Materia": "Fisica"
+  },
+  {
+    "Nombre": "Ana",
+    "Apellido": "Martinez",
+    "Promedio": 7.80,
+    "Materia": "Quimica"
+  },
+  {
+    "Nombre": "Pedro",
+    "Apellido": "Sanchez",
+    "Promedio": 5.90,
+    "Materia": "Biologia"
+  },
+  {
+    "Nombre": "Laura",
+    "Apellido": "Fernandez",
+    "Promedio": 9.50,
+    "Materia": "Literatura"
+  },
+  {
+    "Nombre": "Diego",
+    "Apellido": "Rodriguez",
+    "Promedio": 7.30,
+    "Materia": "Geografia"
+  },
+  {
+    "Nombre": "Sofia",
+    "Apellido": "Torres",
+    "Promedio": 8.10,
+    "Materia": "Ingles"
+  },
+  {
+    "Nombre": "Miguel",
+    "Apellido": "Diaz",
+    "Promedio": 6.40,
+    "Materia": "Informatica"
+  },
+  {
+    "Nombre": "Valentina",
+    "Apellido": "Ruiz",
+    "Promedio": 9.00,
+    "Materia": "Filosofia"
+  }
+]

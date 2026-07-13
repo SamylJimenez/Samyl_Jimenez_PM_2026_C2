@@ -1,0 +1,33 @@
+--- INICIO DE MOVIMIENTOS (Torres de Hanoi con 5 discos) ---
+Movimiento 1: Mover disco 1 de A a B
+Movimiento 2: Mover disco 2 de A a C
+Movimiento 3: Mover disco 1 de B a C
+Movimiento 4: Mover disco 3 de A a B
+Movimiento 5: Mover disco 1 de C a A
+Movimiento 6: Mover disco 2 de C a B
+Movimiento 7: Mover disco 1 de A a B
+Movimiento 8: Mover disco 4 de A a C
+Movimiento 9: Mover disco 1 de B a C
+Movimiento 10: Mover disco 2 de B a A
+Movimiento 11: Mover disco 1 de C a A
+Movimiento 12: Mover disco 3 de B a C
+Movimiento 13: Mover disco 1 de A a B
+Movimiento 14: Mover disco 2 de A a C
+Movimiento 15: Mover disco 1 de B a C
+Movimiento 16: Mover disco 5 de A a B
+Movimiento 17: Mover disco 1 de C a A
+Movimiento 18: Mover disco 2 de C a B
+Movimiento 19: Mover disco 1 de A a B
+Movimiento 20: Mover disco 3 de C a A
+Movimiento 21: Mover disco 1 de B a C
+Movimiento 22: Mover disco 2 de B a A
+Movimiento 23: Mover disco 1 de C a A
+Movimiento 24: Mover disco 4 de C a B
+Movimiento 25: Mover disco 1 de A a B
+Movimiento 26: Mover disco 2 de A a C
+Movimiento 27: Mover disco 1 de B a C
+Movimiento 28: Mover disco 3 de A a B
+Movimiento 29: Mover disco 1 de C a A
+Movimiento 30: Mover disco 2 de C a B
+Movimiento 31: Mover disco 1 de A a B
+--- TOTAL MOVIMIENTOS: 31 ---
