@@ -1,0 +1,6 @@
+¿Por qué se necesitan stb_image.h y stb_image_write.h?
+Estos archivos son librerías de cabecera única (single-header libraries) esenciales para que el programa en C pueda manejar imágenes sin depender de librerías externas complejas de instalar (como libpng o libjpeg).
+
+Ambos archivos deben estar en la misma carpeta que el código fuente (`.c`) para que el compilador los encuentre al compilar el proyecto.
+
+puede añadir la foto que guste para probar el programa, hay una imagen de ejemplo (la misma que usted uso en clase) por si no quiere buscar una imagen
