@@ -1,0 +1,8 @@
+===== RIESGO 1 =====
+Nombre: Incendio casa
+Descripcion: Incendio en casa debido a fuga de gas
+F=5 S=5 P=4 E=2 A=1 V=4
+C=16.00
+GR=64.00
+Clasificacion=Gravisima
+
