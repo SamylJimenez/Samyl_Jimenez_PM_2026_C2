@@ -4,40 +4,26 @@
    El metodo Mosler evalua la GRAVEDAD DE UN RIESGO (GR) combinando 6
    criterios, cada uno calificado de 1 a 5:
 
-     F = Funcion        -> importancia de lo que se pone en riesgo
-     S = Sustitucion     -> facilidad para reemplazar lo danado
-     P = Profundidad     -> efecto perturbador / repercusion
-     E = Extension       -> alcance del dano (personas, area, etc.)
-     A = Agresion         -> probabilidad de que el riesgo se presente
-     V = Vulnerabilidad   -> probabilidad de que, presentado el riesgo,
-                             efectivamente cause dano
+     F = Funcion        -> Importancia de la funcion
+     S = Sustitucion    -> Dificultad para sustituir
+     P = Profundidad    -> Perturbacion / Repercusion
+     E = Extension      -> Alcance del dano
+     A = Agresion       -> Probabilidad de manifestacion
+     V = Vulnerabilidad -> Probabilidad de causar dano
 
-   Formulas:
-     C  = F + S + P + E      (Criterio de Consecuencias)
-     GR = C * A * V          (Gravedad del Riesgo)
+   Formulas Mosler Estandar:
+     I  = F + S             (Importancia del riesgo)
+     D  = P + E             (Daños ocasionados)
+     C  = I * D             (Criterio de Agravacion / Consecuencias)
+     PB = A * V             (Criterio de Vulnerabilidad / Probabilidad)
+     GR = C * PB            (Gravedad del Riesgo / ER)
 
-   Clasificacion utilizada en este programa:
-     GR <  3             -> Muy Baja
-     3  <= GR <  5        -> Baja
-     5  <= GR <  8        -> Media
-     8  <= GR < 13        -> Alta
-     13 <= GR < 21        -> Muy Alta
-     GR >= 21             -> Gravisima
-
-   ----------------------------------------------------------------------------
-   COMPILACION:
-     gcc mosler.c -o mosler
-
-   Para habilitar la consulta real a la API de Claude (item "Usar IA" con
-   IA verdadera, no solo la heuristica local) se necesita libcurl y una
-   variable de entorno ANTHROPIC_API_KEY:
-
-     gcc mosler.c -o mosler -DUSE_CLAUDE_API -lcurl
-     export ANTHROPIC_API_KEY="tu_api_key"
-     ./mosler
-
-   Sin esa bandera, el programa usa automaticamente una IA "heuristica"
-   local (reglas expertas) que no requiere internet.
+   Clasificacion estandar (Escala 2 a 1250):
+     GR <= 250             -> Muy Baja
+     251 <= GR <= 500      -> Baja
+     501 <= GR <= 750      -> Media
+     751 <= GR <= 1000     -> Alta
+     GR > 1000             -> Gravisima
    ============================================================================ */
 
 #include <stdio.h>
@@ -61,8 +47,8 @@ typedef struct {
     char nombre[TAM_NOMBRE];
     char descripcion[TAM_DESC];
     int F, S, P, E, A, V;   /* criterios 1..5 */
-    double C;                /* consecuencias  */
-    double GR;                /* gravedad del riesgo */
+    double C;                /* criterio de agravacion */
+    double GR;               /* gravedad del riesgo (ER) */
     char clasificacion[20];
 } Riesgo;
 
@@ -131,17 +117,20 @@ static int siguienteId(void) {
 /* ---------------------------- CALCULO Y CLASIFICACION --------------------- */
 
 static void clasificarRiesgo(Riesgo *r) {
-    if (r->GR < 3.0)       strcpy(r->clasificacion, "Muy Baja");
-    else if (r->GR < 5.0)  strcpy(r->clasificacion, "Baja");
-    else if (r->GR < 8.0)  strcpy(r->clasificacion, "Media");
-    else if (r->GR < 13.0) strcpy(r->clasificacion, "Alta");
-    else if (r->GR < 21.0) strcpy(r->clasificacion, "Muy Alta");
-    else                    strcpy(r->clasificacion, "Gravisima");
+    if (r->GR <= 250.0)       strcpy(r->clasificacion, "Muy Baja");
+    else if (r->GR <= 500.0)  strcpy(r->clasificacion, "Baja");
+    else if (r->GR <= 750.0)  strcpy(r->clasificacion, "Media");
+    else if (r->GR <= 1000.0) strcpy(r->clasificacion, "Alta");
+    else                      strcpy(r->clasificacion, "Gravisima");
 }
 
 static void calcularRiesgo(Riesgo *r) {
-    r->C  = r->F + r->S + r->P + r->E;
-    r->GR = r->C * r->A * r->V;
+    int I = r->F + r->S;
+    int D = r->P + r->E;
+    r->C  = I * D;              /* Criterio de Agravacion */
+    int PB = r->A * r->V;       /* Probabilidad */
+
+    r->GR = r->C * PB;          /* Gravedad del Riesgo (ER) */
     clasificarRiesgo(r);
 }
 
@@ -169,11 +158,11 @@ static void crearRiesgo(void) {
 
     printf("Ingrese los 6 criterios de Mosler (escala 1 a 5):\n");
     nuevo.F = leerEntero("  F - Funcion:        ", 1, 5);
-    nuevo.S = leerEntero("  S - Sustitucion:     ", 1, 5);
-    nuevo.P = leerEntero("  P - Profundidad:     ", 1, 5);
-    nuevo.E = leerEntero("  E - Extension:       ", 1, 5);
-    nuevo.A = leerEntero("  A - Agresion:        ", 1, 5);
-    nuevo.V = leerEntero("  V - Vulnerabilidad:  ", 1, 5);
+    nuevo.S = leerEntero("  S - Sustitucion:    ", 1, 5);
+    nuevo.P = leerEntero("  P - Profundidad:    ", 1, 5);
+    nuevo.E = leerEntero("  E - Extension:      ", 1, 5);
+    nuevo.A = leerEntero("  A - Agresion:       ", 1, 5);
+    nuevo.V = leerEntero("  V - Vulnerabilidad: ", 1, 5);
 
     calcularRiesgo(&nuevo);
 
@@ -236,11 +225,13 @@ static void imprimirRiesgos(void) {
         printf("No hay riesgos registrados.\n");
         return;
     }
-    printf("\n%-4s %-22s %-4s %-4s %-4s %-4s %-4s %-4s %-6s %-8s %-10s\n",
+    /* Anchos ajustados para alineacion perfecta en consola */
+    printf("\n%-4s %-35s %-2s %-2s %-2s %-2s %-2s %-2s %-6s %-9s %-12s\n",
            "ID", "Nombre", "F", "S", "P", "E", "A", "V", "C", "GR", "Clasific.");
+    printf("-------------------------------------------------------------------------------------\n");
     for (i = 0; i < totalRiesgos; i++) {
         Riesgo *r = &riesgos[i];
-        printf("%-4d %-22s %-4d %-4d %-4d %-4d %-4d %-4d %-6.1f %-8.2f %-10s\n",
+        printf("%-4d %-35s %-2d %-2d %-2d %-2d %-2d %-2d %-6.0f %-9.2f %-12s\n",
                r->id, r->nombre, r->F, r->S, r->P, r->E, r->A, r->V, r->C, r->GR, r->clasificacion);
     }
 }
@@ -427,9 +418,6 @@ static void guardarArchivo(void) {
 }
 
 /* ---------------------------- OPCION 8: CARGAR CON MEMORIA DINAMICA -------- */
-/* Nota: los parseadores de JSON y XML aqui son deliberadamente simples:
-   funcionan con archivos generados por este mismo programa (formato fijo),
-   no son parseadores JSON/XML de proposito general. */
 
 static void agregarRiesgoCargado(Riesgo r) {
     calcularRiesgo(&r);
@@ -457,7 +445,6 @@ static void cargarTXT(FILE *f) {
             sscanf(linea, "F=%d S=%d P=%d E=%d A=%d V=%d",
                    &actual.F, &actual.S, &actual.P, &actual.E, &actual.A, &actual.V);
         }
-        /* Las lineas C=, GR= y Clasificacion= se recalculan, no se necesitan */
     }
     if (hayActual) agregarRiesgoCargado(actual);
 }
@@ -492,7 +479,7 @@ static void cargarCSV(FILE *f) {
     while (fgets(linea, sizeof(linea), f)) {
         linea[strcspn(linea, "\n")] = '\0';
         if (linea[0] == '\0') continue;
-        if (primera) { primera = 0; continue; } /* saltar encabezado */
+        if (primera) { primera = 0; continue; }
 
         if (parsearLineaCSV(linea, campos, 12) >= 12) {
             Riesgo r; memset(&r, 0, sizeof(r));
@@ -580,18 +567,16 @@ static void cargarDesdeArchivo(void) {
     if (!f) { printf("No se pudo abrir '%s'.\n", archivoActual); return; }
 
     ext = obtenerExtension(archivoActual);
-    if (strcasecmp_local(ext, "csv") == 0)       cargarCSV(f);
+    if (strcasecmp_local(ext, "csv") == 0)        cargarCSV(f);
     else if (strcasecmp_local(ext, "json") == 0) cargarJSON(f);
     else if (strcasecmp_local(ext, "xml") == 0)  cargarXML(f);
-    else                                          cargarTXT(f);
+    else                                         cargarTXT(f);
 
     fclose(f);
     printf("Se cargaron %d riesgo(s) nuevos (memoria dinamica, capacidad actual = %d).\n",
            totalRiesgos - antes, capacidadRiesgos);
 }
 
-/* strcasecmp no es estandar en C puro / algunos compiladores Windows;
-   se define una version propia y portable. */
 static int strcasecmp_local(const char *a, const char *b) {
     while (*a && *b) {
         int ca = tolower((unsigned char) *a);
@@ -604,9 +589,6 @@ static int strcasecmp_local(const char *a, const char *b) {
 
 /* ---------------------------- MODULO DE IA ---------------------------------- */
 
-/* IA heuristica local: no requiere internet. Analiza cual de los 6 criterios
-   domina la gravedad y sugiere una linea de accion, siguiendo el enfoque de
-   que GR = C * A * V (si C, A o V son altos, ese es el punto a atacar). */
 static void sugerenciaHeuristica(const Riesgo *r, char *buffer, int tam) {
     int max = r->F;
     char *criterioDominante = "Funcion (F)";
@@ -617,14 +599,14 @@ static void sugerenciaHeuristica(const Riesgo *r, char *buffer, int tam) {
     if (r->A > max) { max = r->A; criterioDominante = "Agresion / Probabilidad (A)"; }
     if (r->V > max) { max = r->V; criterioDominante = "Vulnerabilidad (V)"; }
 
-    if (strcmp(r->clasificacion, "Gravisima") == 0 || strcmp(r->clasificacion, "Muy Alta") == 0) {
+    if (strcmp(r->clasificacion, "Gravisima") == 0 || strcmp(r->clasificacion, "Alta") == 0) {
         snprintf(buffer, (size_t) tam,
             "Riesgo '%s' (GR=%.2f, %s). El criterio dominante es %s. "
             "Se recomienda accion inmediata: si domina A o V, priorizar controles "
             "preventivos/proteccion; si domina C (F/S/P/E), reducir la exposicion "
             "o el impacto potencial y definir un plan de contingencia documentado.",
             r->nombre, r->GR, r->clasificacion, criterioDominante);
-    } else if (strcmp(r->clasificacion, "Alta") == 0 || strcmp(r->clasificacion, "Media") == 0) {
+    } else if (strcmp(r->clasificacion, "Media") == 0 || strcmp(r->clasificacion, "Baja") == 0) {
         snprintf(buffer, (size_t) tam,
             "Riesgo '%s' (GR=%.2f, %s). Criterio dominante: %s. "
             "Se sugiere establecer controles administrativos y de ingenieria, "
@@ -654,8 +636,6 @@ static size_t escribirCallback(void *contenido, size_t tam, size_t nmemb, void *
     return total;
 }
 
-/* Consulta real a la API de Claude (api.anthropic.com/v1/messages).
-   Requiere -DUSE_CLAUDE_API -lcurl y la variable ANTHROPIC_API_KEY. */
 static void consultarIA(const Riesgo *r) {
     CURL *curl;
     CURLcode res;
